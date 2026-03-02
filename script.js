@@ -16,7 +16,7 @@
     function loadThemesFromGitHub() {
         return new Promise((resolve, reject) => {
             // Fetch the latest commit SHA for themes.json
-            fetch('https://api.github.com/repos/NovaDev404/MP-Plus/commits?path=themes.json&per_page=1')
+            fetch('https://api.github.com/repos/xsep500/MP-Plus/commits?path=themes.json&per_page=1')
                 .then(function (r) { return r.json(); })
                 .then(function (d) {
                     if (!d.length) {
@@ -27,7 +27,7 @@
                     
                     // Load themes.json from jsDelivr with commit SHA
                     const sha = d[0].sha.substring(0, 7);
-                    const themesUrl = `https://cdn.jsdelivr.net/gh/NovaDev404/MP-Plus@${sha}/themes.json`;
+                    const themesUrl = `https://cdn.jsdelivr.net/gh/xsep500/MP-Plus@${sha}/themes.json`;
                     
                     fetch(themesUrl)
                         .then(response => response.json())
