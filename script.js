@@ -806,6 +806,71 @@
         console.log('AI Chat panel removed');
     }
     
+    /* -------------------------
+   Help Overlay (Alt+0)
+   ------------------------- */
+function toggleHelpOverlay() {
+    if (shouldDebounceToggle()) return console.log('toggleHelpOverlay: debounced');
+
+    const existing = document.getElementById('mp-help-overlay');
+    if (existing) {
+        existing.remove();
+        showStatus('Help Overlay - OFF', '#ef4444');
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'mp-help-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        background: rgba(0, 0, 0, 0.88);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+    `;
+
+    const card = document.createElement('div');
+    card.style.cssText = `
+        max-width: 900px;
+        width: min(92vw, 900px);
+        background: rgba(20, 20, 20, 0.95);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 14px;
+        padding: 22px 24px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+        line-height: 1.6;
+        font-size: 18px;
+        white-space: pre-line;
+    `;
+
+    card.textContent = `To enable / disable features hold down Alt and press:
+1 to toggle the speedrunner
+2 to toggle the 'remove annoying' feature
+3 to toggle the 'right click' feature, which re-enables the blocked right clicking, and enables selecting more text.
+4 to toggle the calculator.
+5 to toggle the AI chat.
+6 to change progress bar theme. Double tap the 6 to open the selection menu
+
+Press Alt+0 again (or click anywhere) to close.`;
+
+    overlay.appendChild(card);
+
+    // click anywhere to close
+    overlay.addEventListener('click', () => {
+        overlay.remove();
+        showStatus('Help Overlay - OFF', '#ef4444');
+    });
+
+    document.body.appendChild(overlay);
+    showStatus('Help Overlay - ON', '#10b981');
+}
+
     function toggleOpenAI() {
         if (shouldDebounceToggle()) return console.log('toggleOpenAI: debounced');
         const existing = document.getElementById('mp-aichat-panel');
@@ -947,55 +1012,64 @@
     /* -------------------------
        Keyboard Shortcuts Setup (improved)
        ------------------------- */
-    function setupKeyboardShortcuts() {
-        if (window.__mpToolsKeyboardSetup) {
-            console.log('Keyboard shortcuts already set up');
-            return;
-        }
-        window.__mpToolsKeyboardSetup = true;
-        window.__mpToolsLastKeyAt = window.__mpToolsLastKeyAt || 0;
-        document.addEventListener('keydown', function (e) {
-            const now = Date.now();
-            if (now - window.__mpToolsLastKeyAt < 150) return;
-            const isDigit1 = e.code === 'Digit1' || e.key === '1';
-            const isDigit2 = e.code === 'Digit2' || e.key === '2';
-            const isDigit3 = e.code === 'Digit3' || e.key === '3';
-            const isDigit4 = e.code === 'Digit4' || e.key === '4';
-            const isDigit5 = e.code === 'Digit5' || e.key === '5';
-            const isDigit6 = e.code === 'Digit6' || e.key === '6';
-            if (e.altKey && isDigit6) {
-                e.preventDefault();
-                window.__mpToolsLastKeyAt = now;
-                console.log('Alt+6 pressed => handling progress theme');
-                handleAlt6();
-            } else if (e.altKey && isDigit1) {
-                e.preventDefault();
-                window.__mpToolsLastKeyAt = now;
-                console.log('Alt+1 pressed => toggling speedrunner');
-                toggleSpeedrunner();
-            } else if (e.altKey && isDigit2) {
-                e.preventDefault();
-                window.__mpToolsLastKeyAt = now;
-                console.log('Alt+2 pressed => toggling removeAnnoying');
-                toggleRemoveAnnoying();
-            } else if (e.altKey && isDigit3) {
-                e.preventDefault();
-                window.__mpToolsLastKeyAt = now;
-                console.log('Alt+3 pressed => toggling rightClick');
-                toggleRightClick();
-            } else if (e.altKey && isDigit4) {
-                e.preventDefault();
-                window.__mpToolsLastKeyAt = now;
-                console.log('Alt+4 pressed => toggling calculator');
-                toggleCalculator();
-            } else if (e.altKey && isDigit5) {
-                e.preventDefault();
-                window.__mpToolsLastKeyAt = now;
-                console.log('Alt+5 pressed => toggling AI Chat');
-                toggleOpenAI();
-            }
-        }, true);
+function setupKeyboardShortcuts() {
+    if (window.__mpToolsKeyboardSetup) {
+        console.log('Keyboard shortcuts already set up');
+        return;
     }
+    window.__mpToolsKeyboardSetup = true;
+    window.__mpToolsLastKeyAt = window.__mpToolsLastKeyAt || 0;
+
+    document.addEventListener('keydown', function (e) {
+        const now = Date.now();
+        if (now - window.__mpToolsLastKeyAt < 150) return;
+
+        const isDigit0 = e.code === 'Digit0' || e.key === '0';
+        const isDigit1 = e.code === 'Digit1' || e.key === '1';
+        const isDigit2 = e.code === 'Digit2' || e.key === '2';
+        const isDigit3 = e.code === 'Digit3' || e.key === '3';
+        const isDigit4 = e.code === 'Digit4' || e.key === '4';
+        const isDigit5 = e.code === 'Digit5' || e.key === '5';
+        const isDigit6 = e.code === 'Digit6' || e.key === '6';
+
+        if (e.altKey && isDigit0) {
+            e.preventDefault();
+            window.__mpToolsLastKeyAt = now;
+            console.log('Alt+0 pressed => toggling help overlay');
+            toggleHelpOverlay();
+        } else if (e.altKey && isDigit6) {
+            e.preventDefault();
+            window.__mpToolsLastKeyAt = now;
+            console.log('Alt+6 pressed => handling progress theme');
+            handleAlt6();
+        } else if (e.altKey && isDigit1) {
+            e.preventDefault();
+            window.__mpToolsLastKeyAt = now;
+            console.log('Alt+1 pressed => toggling speedrunner');
+            toggleSpeedrunner();
+        } else if (e.altKey && isDigit2) {
+            e.preventDefault();
+            window.__mpToolsLastKeyAt = now;
+            console.log('Alt+2 pressed => toggling removeAnnoying');
+            toggleRemoveAnnoying();
+        } else if (e.altKey && isDigit3) {
+            e.preventDefault();
+            window.__mpToolsLastKeyAt = now;
+            console.log('Alt+3 pressed => toggling rightClick');
+            toggleRightClick();
+        } else if (e.altKey && isDigit4) {
+            e.preventDefault();
+            window.__mpToolsLastKeyAt = now;
+            console.log('Alt+4 pressed => toggling calculator');
+            toggleCalculator();
+        } else if (e.altKey && isDigit5) {
+            e.preventDefault();
+            window.__mpToolsLastKeyAt = now;
+            console.log('Alt+5 pressed => toggling AI Chat');
+            toggleOpenAI();
+        }
+    }, true);
+}
     
     /* -------------------------
        Initialize on load
